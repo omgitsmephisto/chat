@@ -30,9 +30,8 @@ import * as signalR from '@microsoft/signalr';
   }
 
   onMounted(async () => {
-    connection.on('messageReceived', (message: { id: string; content: string }[]) => {
-      // messages.value.push({ id: message.id, content: message.content });
-      messages.value = message;
+    connection.on('messageReceived', (message: { id: string; content: string }) => {
+      messages.value.push({ id: message.id, content: message.content });
     });
 
     await connection.start();

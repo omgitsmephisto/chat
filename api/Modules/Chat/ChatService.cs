@@ -1,25 +1,34 @@
+using Microsoft.AspNetCore.SignalR;
+
 namespace api.Modules.Chat;
 
-public class ChatService
+public class ChatService(
+    IHubContext<ChatHub> hub
+)
 {
-    
+    private readonly IHubContext<ChatHub> _hub = hub;
+
     private readonly List<Chat> _messages =
     [
-        new(DateTime.UtcNow, "Olá mundo!")
+        new(DateTime.UtcNow, "[ADMIN] Chat para interagir.")
     ];
     
     public List<Chat> GetMessages()
     {
-        // foreach (var chat in _messages)
-        // {
-        //     Console.WriteLine(chat);
-        // }
         return _messages;
     }
 
-    public Chat Add(Chat chat)
+    public async Task<Chat> Add(Chat chat)
     {
         _messages.Add(new(DateTime.UtcNow, chat.Content));
+
+        Console.WriteLine($"Chat adicionado: ID - {DateTime.UtcNow}, Conteúdo: {chat.Content}");
+
+        await _hub.Clients.All.SendAsync(
+            "messageReceived",
+            chat
+        );
+
         return chat;
     }
 }
